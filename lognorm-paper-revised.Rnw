@@ -1,0 +1,123 @@
+\documentclass{amsart}
+\usepackage{amsmath, amssymb, hyperref, xcolor, float}
+\newcommand{\link}[2]{{\color{blue}\href{#2}{#1}}}
+\setlength{\parskip}{\baselineskip}%
+\setlength{\parindent}{0pt}%
+\begin{document}
+
+\title{Magic constant in \emph{How To Measure Anything in Cybersecurity Risk}}
+\author{Eric Bowman}
+\email{eric.bowman@tomtom.com}
+\today
+\maketitle
+
+This is an investigation into the properties of lognormal distributions, to illuminate a mystery found in Chapter 3 of \emph{How To Measure Anything in Cybersecurity}.
+
+There is a mysterious constant in the Chapter 3 Excel spreadsheet, in column \texttt{J}, ''Expected Inherent Loss": 3.28971, that is never explained. Some searching uncovers \link{some clues}{https://math.stackexchange.com/questions/1878357/how-to-interpret-this-excel-formula-for-expected-loss} but it's leaves questions.
+
+In this paper, we will work through the math to uncover what this constant means, and why it is hard-coded.
+
+The normal distribution has a \link{probability density function}{https://en.wikipedia.org/wiki/Normal_distribution} defined as:
+
+\begin{equation}
+f_Z(x) = \frac{1}{\sigma \sqrt{2\pi}} \cdot e^{-\frac{1}{2}(\frac{x - \mu}{\sigma})^2}
+\end{equation}
+
+A random variable $X$ with a log-normal distribution has the property that the $log X$ has a normal distribution. Using a log-normal distribution tends to reflect the domain, since a log-normally distributed variable $X$ will never be negative, and tends to have a low-probability \emph{long tail}. This makes sense, for example, to model the number of break-in attempts of the financial loss due to a security issue. The values are 0 or great, there tends to be a relatively modest expectation value, but there is a finite probability the numbers will be large.
+
+The \link{log-normal probability density function}{https://en.wikipedia.org/wiki/Log-normal_distribution} is defined as:
+
+\begin{equation}
+f_X(x) = \frac{1}{x} \cdot \frac{1}{\sigma \sqrt{2\pi}} \cdot e^{-\frac{1}{2} (\frac{\ln x - \mu}{\sigma})^2}
+\end{equation}
+
+The \link{ProbOnto}{https://sites.google.com/site/probonto/} website characterizes R's implementation of the normal and lognormal distributions as ''lognormal1." These are represented in R using the \texttt{dnorm} and \texttt{dlnorm} funtions, respectively.
+
+The book asks the estimator to choose a lower bound $L$ and an upper bound $U$ such that the estimator believes there is a 90\% chance the observed value will be within that range. This means that $L$ describes the 5th percentile of distribution, and $U$ describes the 95th percentile.
+
+For a \link{log-normal distribution}{https://en.wikipedia.org/wiki/Log-normal_distribution\#Cumulative_distribution_function}, the integral of the probability density function, called the cumulative distribution function (CDF) is described in terms of the CDF for a normal distribution:  (in R, \texttt{plnorm}) as:
+
+\begin{equation}
+F_X(x) = \Phi(\frac{\log{x} - \mu}{\sigma})
+\end{equation}
+
+In R, this is represented as \texttt{plnorm}.
+
+The challenge is to demonstrate that, given a particular value for $L$ and $U$, the parameters $\mu$ and $\sigma$ are defined.
+
+If this is true, then we can solve for $\mu$ and $\sigma$ in the following system of equations:
+
+\begin{equation}
+  F_X(L, \mu, \sigma) = 0.05
+\end{equation}
+\begin{equation}
+  F_X(U, \mu, \sigma) = 0.95
+\end{equation}
+
+... which is the same as
+
+\begin{equation}
+  \Phi(\frac{\log L - \mu}{\sigma}) = 0.05
+\end{equation}
+\begin{equation}
+  \Phi(\frac{\log U - \mu}{\sigma}) = 0.95
+\end{equation}
+
+which leads to
+
+\begin{equation}
+  \frac{\log L - \mu}{\sigma} = \Phi^{-1}(0.05)
+\end{equation}
+\begin{equation}
+  \frac{\log U - \mu}{\sigma} = \Phi^{-1}(0.95)
+\end{equation}
+
+\begin{equation}
+  \log L - \mu = \sigma \cdot \Phi^{-1}(0.05)
+\end{equation}
+\begin{equation}
+  \log U - \mu = \sigma \cdot \Phi^{-1}(0.95)
+\end{equation}
+
+...where $\Phi^{-1}$ is the inverse CDF, also called the \emph{quantile function} (in R, \texttt{qnorm}).
+
+Adding these together lets us solve for $\mu$:
+
+\begin{equation}
+	\begin{aligned}
+		(\log L + \log U) - 2 \mu = 2\sigma(\Phi^{-1}(0.05) + \Phi^{-1}(0.95)) \\
+		-2 \mu = 2\sigma(\Phi^{-1}(0.05) + \Phi^{-1}(0.95)) - (\log L + \log U) \\
+		\mu = \frac{\log L + \log U}{2} - \sigma(\Phi^{-1}(0.05) + \Phi^{-1}(0.95)) \\
+		\mu = \frac{\log L + \log U}{2}
+	\end{aligned}	
+\end{equation}
+
+In the last step, we are able to remove the $Phi$ term because the normal distribution is symmetric, so we know that $\Phi(0.05) = \Phi(0.95)$. We can approximately confirm this in R:
+
+<<>>=
+qnorm(0.05) + qnorm(0.95)
+@
+
+Subtracting them lets us solve for $\sigma$:
+
+\begin{equation}
+	\begin{aligned}
+		\frac{\log L - \mu}{\sigma} - \frac{\log U - \mu}{\sigma} = \Phi^{-1}(0.05) - \Phi^{-1}(0.95) \\		
+		\log L - \mu - (\log U - \mu) = \sigma(\Phi^{-1}(0.05) - \Phi^{-1}(0.95)) \\
+		\sigma = \frac{\log L - \log U}{\Phi^{-1}(0.05) - \Phi^{-1}(0.95)} \\
+		\sigma = \frac{\log U - \log L}{2\Phi^{-1}(0.95)}
+	\end{aligned}	
+\end{equation}
+
+...which is the result.
+
+There is \link{no closed form expression}{https://stats.stackexchange.com/questions/265925/what-is-inverse-cdf-normal-distribution-formula} for $\Phi^{-1}$. Therefore, the author uses the hard-coded value, though we could use an excel function to compute it, which would increase clarity. In Excel, this is the \texttt{NORM.INV} function, \link{documented here}{https://www.excelfunctions.net/excel-norm-inv-function.html}.
+
+In R,
+
+<<>>=
+2*qnorm(0.95)
+@
+The corresponding evaluation in Excel, \texttt{=2*NORM.INV(0.95,0,1)} yields $3.289707254$.
+
+\end{document}
