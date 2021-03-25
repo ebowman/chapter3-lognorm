@@ -66,17 +66,17 @@ If this is true, then we can solve for $\mu$ and $\sigma$ in the following syste
 which leads to
 
 \begin{equation}
-  \frac{\log L - \mu}{\sigma} = \Phi^{-1}(0.05)
+  \frac{\log L - \mu}{\sigma} = \Phi_{0.05}^{-1}
 \end{equation}
 \begin{equation}
-  \frac{\log U - \mu}{\sigma} = \Phi^{-1}(0.95)
+  \frac{\log U - \mu}{\sigma} = \Phi_{0.95}^{-1}
 \end{equation}
 
 \begin{equation}
-  \log L - \mu = \sigma \cdot \Phi^{-1}(0.05)
+  \log L - \mu = \sigma \cdot \Phi_{0.05}^{-1}
 \end{equation}
 \begin{equation}
-  \log U - \mu = \sigma \cdot \Phi^{-1}(0.95)
+  \log U - \mu = \sigma \cdot \Phi_{0.95}^{-1}
 \end{equation}
 
 ...where $\Phi^{-1}$ is the inverse CDF, also called the \emph{quantile function} (in R, \texttt{qnorm}).
@@ -85,9 +85,8 @@ Adding these together lets us solve for $\mu$:
 
 \begin{equation}
 	\begin{aligned}
-		(\log L + \log U) - 2 \mu = 2\sigma(\Phi^{-1}(0.05) + \Phi^{-1}(0.95)) \\
-		-2 \mu = 2\sigma(\Phi^{-1}(0.05) + \Phi^{-1}(0.95)) - (\log L + \log U) \\
-		\mu = \frac{\log L + \log U - \sigma(\Phi^{-1}(0.05) + \Phi^{-1}(0.95))}{2} \\
+		(\log L + \log U) - 2 \mu = \sigma(\Phi_{0.05}^{-1} + \Phi_{0.95}^{-1}) \\
+		(\log L + \log U) - 2 \mu = 0 \\
 		\mu = \frac{\log L + \log U}{2}
 	\end{aligned}	
 \end{equation}
@@ -102,10 +101,10 @@ Subtracting them lets us solve for $\sigma$:
 
 \begin{equation}
 	\begin{aligned}
-		\frac{\log L - \mu}{\sigma} - \frac{\log U - \mu}{\sigma} = \Phi^{-1}(0.05) - \Phi^{-1}(0.95) \\		
-		\log L - \mu - (\log U - \mu) = \sigma(\Phi^{-1}(0.05) - \Phi^{-1}(0.95)) \\
-		\sigma = \frac{\log L - \log U}{\Phi^{-1}(0.05) - \Phi^{-1}(0.95)} \\
-		\sigma = \frac{\log U - \log L}{2\Phi^{-1}(0.95)}
+		\frac{\log L - \mu}{\sigma} - \frac{\log U - \mu}{\sigma} = \Phi_{0.05}^{-1} - \Phi_{0.95}^{-1} \\		
+		\log L - \mu - (\log U - \mu) = \sigma(\Phi_{0.05}^{-1} - \Phi_{0.95}^{-1}) \\
+		\sigma = \frac{\log L - \log U}{\Phi_{0.05}^{-1} - \Phi_{0.95}^{-1}} \\
+		\sigma = \frac{\log U - \log L}{2\Phi_{0.95}^{-1}}
 	\end{aligned}	
 \end{equation}
 
