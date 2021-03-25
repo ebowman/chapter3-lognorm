@@ -87,12 +87,12 @@ Adding these together lets us solve for $\mu$:
 	\begin{aligned}
 		(\log L + \log U) - 2 \mu = 2\sigma(\Phi^{-1}(0.05) + \Phi^{-1}(0.95)) \\
 		-2 \mu = 2\sigma(\Phi^{-1}(0.05) + \Phi^{-1}(0.95)) - (\log L + \log U) \\
-		\mu = \frac{\log L + \log U}{2} - \sigma(\Phi^{-1}(0.05) + \Phi^{-1}(0.95)) \\
+		\mu = \frac{\log L + \log U - \sigma(\Phi^{-1}(0.05) + \Phi^{-1}(0.95))}{2} \\
 		\mu = \frac{\log L + \log U}{2}
 	\end{aligned}	
 \end{equation}
 
-In the last step, we are able to remove the $Phi$ term because the normal distribution is symmetric, so we know that $\Phi(0.05) = \Phi(0.95)$. We can approximately confirm this in R:
+In the last step, we are able to remove the $\Phi$ term because the normal distribution is symmetric, so we know that $\Phi(0.05) = -\Phi(0.95)$. We can approximately confirm this in R:
 
 <<>>=
 qnorm(0.05) + qnorm(0.95)
