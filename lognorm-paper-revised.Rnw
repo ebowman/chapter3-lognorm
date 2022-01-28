@@ -11,11 +11,16 @@
 \today
 \maketitle
 
-This is an investigation into the properties of lognormal distributions, to illuminate a mystery found in Chapter 3 of \emph{How To Measure Anything in Cybersecurity}.
+This is an investigation into the properties of lognormal distributions, to
+illuminate a mystery found in Chapter 3 of \emph{How To Measure Anything in
+Cybersecurity}.
 
-There is a mysterious constant in the Chapter 3 Excel spreadsheet, in column \texttt{J}, ''Expected Inherent Loss": 3.28971, that is never explained. Some searching uncovers \link{some clues}{https://math.stackexchange.com/questions/1878357/how-to-interpret-this-excel-formula-for-expected-loss} but it's leaves questions.
+There is a mysterious constant in the Chapter 3 Excel spreadsheet, in column
+\texttt{J}, ''Expected Inherent Loss": 3.28971, that is never explained. A
+little searching uncovers \link{some clues}{https://math.stackexchange.com/questions/1878357/how-to-interpret-this-excel-formula-for-expected-loss}
+but it leaves open questions.
 
-In this paper, we will work through the math to uncover what this constant means, and why it is hard-coded.
+In this paper, we will work through some relevant math to uncover what this constant means, and why it is hard-coded.
 
 The normal distribution has a \link{probability density function}{https://en.wikipedia.org/wiki/Normal_distribution} defined as:
 
@@ -23,7 +28,15 @@ The normal distribution has a \link{probability density function}{https://en.wik
 f_Z(x) = \frac{1}{\sigma \sqrt{2\pi}} \cdot e^{-\frac{1}{2}(\frac{x - \mu}{\sigma})^2}
 \end{equation}
 
-A random variable $X$ with a log-normal distribution has the property that the $log X$ has a normal distribution. Using a log-normal distribution tends to reflect the domain, since a log-normally distributed variable $X$ will never be negative, and tends to have a low-probability \emph{long tail}. This makes sense, for example, to model the number of break-in attempts of the financial loss due to a security issue. The values are 0 or great, there tends to be a relatively modest expectation value, but there is a finite probability the numbers will be large.
+A random variable $X$ with a log-normal distribution has the property that $log
+X$ has a normal distribution. Using a log-normal distribution tends to reflect
+many common domains in which negative values are impossible, since a
+log-normally distributed variable $X$ will never be negative, and tends to have
+a low-probability \emph{long tail}. This makes sense, for example, to used to
+model the number of break-in attempts or the financial loss due to a security
+issue. The only possible values are 0 or greater, there tends to be a
+relatively modest expectation value, but there is a finite (but small)
+probability the expected values will be large.
 
 The \link{log-normal probability density function}{https://en.wikipedia.org/wiki/Log-normal_distribution} is defined as:
 
